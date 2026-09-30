@@ -287,14 +287,14 @@ class Command():
         err = err.rstrip()
         if x.returncode != 0:
             if out:
-                logger.error(out.decode("ascii"))
+                logger.error(out.decode("utf-8", "replace"))
             if err:
-                logger.error(err.decode("ascii"))
+                logger.error(err.decode("utf-8", "replace"))
         else:
             if out:
-                logger.warning(out.decode("ascii"))
+                logger.warning(out.decode("utf-8", "replace"))
             if err:
-                logger.warning(err.decode("ascii"))
+                logger.warning(err.decode("utf-8", "replace"))
         return x.returncode
 
     def _is_shell_command(self):

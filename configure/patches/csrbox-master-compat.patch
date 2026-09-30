@@ -1,0 +1,126 @@
+diff --git a/csrbox/constants.py b/csrbox/constants.py
+index 4a1096f..f0f8635 100644
+--- a/csrbox/constants.py
++++ b/csrbox/constants.py
+@@ -384,8 +384,8 @@ trap_mu = '''
+       Bit#(2) lv_trapmode = 0;
+       Privilege_mode prv = Machine;
+       
+-      `logLevel( csrbox, 0, $format("Taking Trap. Cause:%h,PC:%h,TVAL:%h",cause, pc, tval))
+-      `logLevel( csrbox, 0, $format("Trap delegated to ",fshow(prv)))
++      `logLevel( csrbox, 0, $format("Taking Trap. Cause:%h,PC:%h,TVAL:%h",cause, pc, tval), 0)
++      `logLevel( csrbox, 0, $format("Trap delegated to ",fshow(prv)), 0)
+     
+       {6}
+       begin
+@@ -403,7 +403,7 @@ trap_mu = '''
+           lv_tvec =  lv_tvec + {{zeroExtend(lv_cause),2'b0}};
+       end
+     
+-      `logLevel( csrbox, 0, $format("TVEC:%h",lv_tvec))
++      `logLevel( csrbox, 0, $format("TVEC:%h",lv_tvec), 0)
+       return lv_tvec;
+     endmethod
+         
+@@ -423,8 +423,8 @@ trap_msu = '''
+       if (delegateM && (pack(rg_prv) <= pack(Supervisor)) && lv_misa_s == 1)
+         prv = Supervisor;
+       
+-      `logLevel( csrbox, 0, $format("Taking Trap. Cause:%h,PC:%h,TVAL:%h",cause, pc, tval))
+-      `logLevel( csrbox, 0, $format("Trap delegated to ",fshow(prv)))
++      `logLevel( csrbox, 0, $format("Taking Trap. Cause:%h,PC:%h,TVAL:%h",cause, pc, tval), 0)
++      `logLevel( csrbox, 0, $format("Trap delegated to ",fshow(prv)), 0)
+ 
+       {12}
+       begin
+@@ -456,7 +456,7 @@ trap_msu = '''
+         if ( lv_trapmode == 1 && lv_trap_type == 1)
+           lv_tvec =  lv_tvec + {{zeroExtend(lv_cause),2'b0}};
+       end 
+-      `logLevel( csrbox, 0, $format("TVEC:%h",lv_tvec))
++      `logLevel( csrbox, 0, $format("TVEC:%h",lv_tvec), 0)
+       return lv_tvec;
+     endmethod
+         
+@@ -478,8 +478,8 @@ trap_mhsu32 = '''
+       Bool hsdeleg = False;
+       Bool vsdeleg = False;
+       
+-      `logLevel( csrbox, 0, $format("Taking Trap. Cause:%h,PC:%h,TVAL:%h TVAL2:%h",cause, pc, tval, tval2))
+-      `logLevel( csrbox, 0, $format("Trap delegated to ",fshow(prv)))
++      `logLevel( csrbox, 0, $format("Taking Trap. Cause:%h,PC:%h,TVAL:%h TVAL2:%h",cause, pc, tval, tval2), 0)
++      `logLevel( csrbox, 0, $format("Trap delegated to ",fshow(prv)), 0)
+ 
+       Bool delegateM = (truncate(mideleg >> lv_cause) & lv_trap_type) == 1 ||
+                        (truncate(medeleg >> lv_cause) & ~lv_trap_type) == 1 ;
+@@ -493,8 +493,8 @@ trap_mhsu32 = '''
+       if (delegateM && delegateH && rg_virtual == 1 && (pack(rg_prv) <= pack(Supervisor)))
+         vsdeleg= True;
+       
+-      `logLevel( csrbox, 0, $format("Taking Trap. Cause:%h,PC:%h,TVAL:%h",cause, pc, tval))
+-      `logLevel( csrbox, 0, $format("Trap delegated to ",fshow(prv)))
++      `logLevel( csrbox, 0, $format("Taking Trap. Cause:%h,PC:%h,TVAL:%h",cause, pc, tval), 0)
++      `logLevel( csrbox, 0, $format("Trap delegated to ",fshow(prv)), 0)
+ 
+       {24}
+       begin
+@@ -567,7 +567,7 @@ trap_mhsu32 = '''
+         if ( lv_trapmode == 1 && lv_trap_type == 1)
+           lv_tvec =  lv_tvec + {{zeroExtend(lv_cause),2'b0}};
+       end    
+-      `logLevel( csrbox, 0, $format("TVEC:%h lv_cause: 'd%d rg_virtual: %d lv_trapmode: %d",lv_tvec,lv_cause,rg_virtual, lv_trapmode))
++      `logLevel( csrbox, 0, $format("TVEC:%h lv_cause: 'd%d rg_virtual: %d lv_trapmode: %d",lv_tvec,lv_cause,rg_virtual, lv_trapmode), 0)
+       return lv_tvec;
+     endmethod
+         
+@@ -601,8 +601,8 @@ trap_mhsu = '''
+       if (delegateM && delegateH && rg_virtual == 1 && (pack(rg_prv) <= pack(Supervisor)))
+         vsdeleg= True;
+       
+-      `logLevel( csrbox, 0, $format("Taking Trap. Cause:%h,PC:%h,TVAL:%h TVAL2:%h",cause, pc, tval, tval2))
+-      `logLevel( csrbox, 0, $format("Trap delegated to ",fshow(prv)))
++      `logLevel( csrbox, 0, $format("Taking Trap. Cause:%h,PC:%h,TVAL:%h TVAL2:%h",cause, pc, tval, tval2), 0)
++      `logLevel( csrbox, 0, $format("Trap delegated to ",fshow(prv)), 0)
+ 
+       {24}
+       begin
+@@ -674,7 +674,7 @@ trap_mhsu = '''
+         if ( lv_trapmode == 1 && lv_trap_type == 1)
+           lv_tvec =  lv_tvec + {{zeroExtend(lv_cause),2'b0}};
+       end    
+-      `logLevel( csrbox, 0, $format("TVEC:%h lv_cause: 'd%d rg_virtual: %d lv_trapmode: %d",lv_tvec,lv_cause,rg_virtual, lv_trapmode))
++      `logLevel( csrbox, 0, $format("TVEC:%h lv_cause: 'd%d rg_virtual: %d lv_trapmode: %d",lv_tvec,lv_cause,rg_virtual, lv_trapmode), 0)
+       return lv_tvec;
+     endmethod
+         
+@@ -757,7 +757,7 @@ endcase_temp = '''
+ endcase_fwd_temp = '''
+             default: begin
+                 ff_fwd_request.enq(req);
+-                `logLevel( {0}, 1, $format("{0}: fwding req to next group"))
++                `logLevel( {0}, 1, $format("{0}: fwding req to next group"), 0)
+                 rg_resp_to_core <= CSRResponse{{hit: False, data: 0 `ifdef rtldump , csr_updated : False `endif }};
+             end
+         endcase
+@@ -829,7 +829,7 @@ func_csr_to_csr = '''
+ 
+ method_csr_req_def_temp = ''' 
+     method Action ma_core_req(CSRReq req);
+-        `logLevel( {0}, 1, $format("{0}: received req: ", fshow(req)))
++        `logLevel( {0}, 1, $format("{0}: received req: ", fshow(req)), 0)
+         Bit#(2) op = req.funct3; '''
+ 
+ method_case_req = '''
+diff --git a/csrbox/csr_gen.py b/csrbox/csr_gen.py
+index 7810c78..b53c142 100644
+--- a/csrbox/csr_gen.py
++++ b/csrbox/csr_gen.py
+@@ -256,7 +256,7 @@ def csr_probe_function(isa_yaml, attr_yaml,probeinst, logging=False):
+     for csrname in isa_yaml:
+         if attr_yaml[csrname]['value_method']['required']:
+             bsvstr += '''
+-        `{0} : return zeroExtend({2}.soc_sb.sbread.mv_csr_{1});'''.format(csrname.upper(),
++        `{0} : return zeroExtend({2}.sbread.mv_csr_{1});'''.format(csrname.upper(),
+                 csrname.lower(), probeinst)
+     bsvstr += '''
+     default: return 0;

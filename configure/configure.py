@@ -1,3 +1,4 @@
+import subprocess
 
 from cerberus import Validator
 from configure.utils import yaml
@@ -22,15 +23,30 @@ def check_prerequisites():
     # utils.which('csrbox')
     # utils.which('riscv-config')
 
+def patch_csrbox():
+    # This core was written against csrbox's Logger_changes branch, which no longer exists
+    # publicly. csrbox master needs two template fixes: 4-arg `logLevel (this core's Logger.bsv)
+    # and the debug probe path (DebugSoc exposes sbread directly). Idempotent.
+    cwd = os.getcwd()
+    patch = os.path.join(cwd, 'configure', 'patches', 'csrbox-master-compat.patch')
+    already = subprocess.call(['git', 'apply', '--reverse', '--check', patch], cwd='csrbox',
+                              stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) == 0
+    if already:
+        logger.info('csrbox compat patch already applied')
+        return
+    logger.info('Applying csrbox compat patch')
+    utils.shellCommand('cd csrbox && git apply ' + patch).run(cwd=cwd)
+
 def install_csrbox():
     cwd = os.getcwd()
+    patch_csrbox()
     logger.info('Building csrbox')
-    utils.shellCommand('cd csrbox && pip install .').run(cwd=cwd)
+    utils.shellCommand('cd csrbox && pip install --no-build-isolation .').run(cwd=cwd)
 
 def install_riscv_config():
     cwd = os.getcwd()
     logger.info('Building riscv-config')
-    utils.shellCommand('cd riscv-config && pip install .').run(cwd=cwd)
+    utils.shellCommand('cd riscv-config && pip install --no-build-isolation .').run(cwd=cwd)
     
 def handle_dependencies(verbose,clean,update,patch):
     repoman(dependency_yaml,clean,update,patch,False,'./')

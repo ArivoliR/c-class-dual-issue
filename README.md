@@ -33,6 +33,47 @@ verilog compatible for FPGA and ASIC targets.
 All of the source code available in this repository is under the BSD license. 
 Please refer to LICENSE.iitm for more details.
 
+## Building this dual-issue fork
+
+This is the dual-issue C-class (branch `24-branch-di` of
+[mounakrishna/c-class-dual-issue](https://github.com/mounakrishna/c-class-dual-issue)) plus the fixes
+needed to build it today with public dependencies. None of them change the datapath.
+
+- `configure/consts.py`: `caches_mmu` over HTTPS; csrbox and benchmarks repointed from deleted
+  branches to `master`; Verilator `--no-timing` and `-Wno-MULTIDRIVEN` (needed by Verilator 5.04x/5.05x).
+- `configure/configure.py`: `pip install --no-build-isolation`; applies
+  `configure/patches/csrbox-master-compat.patch` (4-arg `logLevel`, debug probe path) before
+  installing csrbox.
+- `configure/utils.py`: decode tool output as UTF-8 (the ASCII decode hid real errors).
+- `src/stage5.bsv`: two csrbox-master shims (`mv_simulate_log_start` → `0`; `ma_set_fflags`
+  takes `rdtype`).
+
+Prerequisites on `PATH`: `bsc` (Bluespec compiler), `verilator` (5.x), `riscv64-unknown-elf-gcc`
+(only for benchmarks and tests), `git`, Python 3. `scripts/elf2hex` is a drop-in for the legacy
+`elf2hex` tool if you don't have it.
+
+```sh
+python3 -m venv .venv && . .venv/bin/activate
+pip install "setuptools<80" wheel
+pip install --no-build-isolation -r requirements.txt
+python -m configure.main --ispec sample_config/c64/rv64i_isa.yaml \
+  --customspec sample_config/c64/rv64i_custom.yaml --gspec sample_config/c64/csr_grouping64.yaml \
+  --dspec sample_config/c64/rv64i_debug.yaml --cspec sample_config/c64/core64.yaml
+make generate_verilog -j$(nproc)
+make link_verilator generate_boot_files        # simulator: bin/out
+```
+
+If `csrbox/` or `benchmarks/` is missing after configure, re-run the configure command; it resumes.
+
+Run a benchmark:
+
+```sh
+make -C benchmarks dhrystone ITERATIONS=500    # -> benchmarks/output/code.mem
+cd benchmarks/output && ln -sf ../../bin/* . && ./out   # results in app_log
+```
+
+The simulator does not exit on its own after the program finishes; stop it once `app_log` is written.
+
 ## Get Started [here](https://c-class.readthedocs.io/)
 
 ## Contributors (in alphabetical order of last name):

@@ -1,0 +1,43 @@
+#!/usr/bin/env python3
+# Minimal drop-in for the legacy Berkeley `elf2hex` as used by the Shakti
+# benchmarks/verification flow:  elf2hex <bytes_per_row> <depth> <elf> <base>
+# Emits one row per line: <2*bytes_per_row> hex digits, value = little-endian
+# integer of the row's bytes (highest-address byte is most-significant), in
+# address order starting at <base>. Matches $readmemh into Bit#(row*8) words.
+import sys, subprocess, tempfile, os
+
+def main():
+    args = sys.argv[1:]
+    if len(args) < 3:
+        sys.stderr.write("usage: elf2hex <bytes_per_row> <depth> <elf> [base]\n")
+        return 1
+    row = int(args[0], 0)
+    depth = int(args[1], 0)
+    elf = args[2]
+    base = int(args[3], 0) if len(args) > 3 else 0
+
+    objcopy = os.environ.get("OBJCOPY", "riscv64-unknown-elf-objcopy")
+    with tempfile.NamedTemporaryFile(suffix=".bin", delete=False) as t:
+        binpath = t.name
+    try:
+        # Flat image of all allocatable sections; gaps zero-filled. Lowest LMA
+        # is the program base (link.ld places it at <base>).
+        subprocess.check_call([objcopy, "-O", "binary",
+                               "--gap-fill", "0", elf, binpath])
+        data = open(binpath, "rb").read()
+    finally:
+        os.unlink(binpath)
+
+    # pad to a multiple of row
+    if len(data) % row:
+        data += b"\x00" * (row - (len(data) % row))
+
+    out = []
+    nrows = min(len(data) // row, depth) if depth else len(data) // row
+    for i in range(nrows):
+        chunk = data[i*row:(i+1)*row]
+        out.append(format(int.from_bytes(chunk, "little"), "0{}x".format(2*row)))
+    sys.stdout.write("\n".join(out) + ("\n" if out else ""))
+    return 0
+
+sys.exit(main())

@@ -9,9 +9,9 @@ bsc_cmd = '''bsc -u -verilog -elab -vdir {0} -bdir {1} -info-dir {1} \
 
 bsc_defines = ''
 
-verilator_cmd = ''' -O3 -LDFLAGS "-static" --x-assign fast \
+verilator_cmd = ''' -O3 -LDFLAGS "-static" --no-timing --x-assign fast \
  --x-initial fast --noassert sim_main.cpp --bbox-sys -Wno-STMTDLY \
- -Wno-UNOPTFLAT -Wno-WIDTH -Wno-lint -Wno-COMBDLY -Wno-INITIALDLY \
+ -Wno-UNOPTFLAT -Wno-WIDTH -Wno-lint -Wno-COMBDLY -Wno-INITIALDLY -Wno-MULTIDRIVEN \
  --autoflush {0} {1} --threads {2} -DBSV_RESET_FIFO_HEAD \
  -DBSV_RESET_FIFO_ARRAY --output-split 20000 \
  --output-split-ctrace 10000'''
@@ -67,7 +67,7 @@ common_verilog:
   url: https://github.com/mounakrishna/common_verilog.git
   checkout: master
 caches_mmu:
-    url: git@github.com:mounakrishna/caches_mmu_dual_issue.git
+    url: https://github.com/mounakrishna/caches_mmu_dual_issue.git
     checkout: tagreg
 verification:
   url: https://gitlab.com/shaktiproject/verification_environment/verification.git
@@ -77,10 +77,10 @@ verification:
     - [riscv-tests/env , verification/patches/riscv-tests-shakti-signature-machine.patch]
 benchmarks:
   url: https://gitlab.com/shaktiproject/cores/benchmarks.git
-  checkout: Logging_efficiency
+  checkout: master
 csrbox:
   url: https://gitlab.com/shaktiproject/cores/csrbox.git
-  checkout: Logger_changes
+  checkout: master
 riscv-config:
   url: https://gitlab.com/shaktiproject/cores/riscv-config
   checkout: master

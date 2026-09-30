@@ -168,7 +168,10 @@ module mkstage5#(parameter Bit#(`xlen) hartid) (Ifc_stage5);
 `endif
 
 `ifdef simulate
-  Bit#(1) simulate_log_start = csr.mv_simulate_log_start;
+  // csrbox-master compat shim: public csrbox lacks mv_simulate_log_start (the
+  // Logger_changes branch feature). Disable the custom-start log window; normal
+  // per-module/level verbose logging via plusargs is unaffected. Datapath-neutral.
+  Bit#(1) simulate_log_start = 1'b0;
 `endif
   let csr_response = csr.mv_core_resp;
   let epochs_match = rg_epoch == rx_fuid.u.first[0].epochs;
@@ -333,11 +336,11 @@ module mkstage5#(parameter Bit#(`xlen) hartid) (Ifc_stage5);
 `ifdef spfpu
   rule rl_set_fflags;
     if (rx_fuid.u.first[0].instpkt matches tagged BASE .baseout)
-      csr.ma_set_fflags(baseout.fflags);
+      csr.ma_set_fflags(baseout.fflags, baseout.rdtype);
     else if (rx_fuid.u.first[1].instpkt matches tagged BASE .baseout)
-      csr.ma_set_fflags(baseout.fflags);
+      csr.ma_set_fflags(baseout.fflags, baseout.rdtype);
     else if (rx_fuid.u.first[1].instpkt matches tagged BASE .baseout1 &&& rx_fuid.u.first[0].instpkt matches tagged BASE .baseout0)
-      csr.ma_set_fflags(baseout1.fflags | baseout0.fflags);
+      csr.ma_set_fflags(baseout1.fflags | baseout0.fflags, baseout1.rdtype);
   endrule
 `endif
 
